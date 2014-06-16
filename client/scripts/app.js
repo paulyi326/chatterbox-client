@@ -1,13 +1,15 @@
 // YOUR CODE HERE:
 //
 var app = {
+  server: 'https://api.parse.com/1/classes/chatterbox',
+
   init: function(){
     //init code here
   },
   send: function(message){
     //send code here
     $.ajax({
-      url: 'https://api.parse.com/1/classes/chatterbox',
+      url: app.server,
       type: 'POST',
       data: JSON.stringify(message),
       success: function(data){
@@ -17,8 +19,20 @@ var app = {
         console.error('chatterbox: Failed to send message');      }
     });
   },
-  fetch: function(){
+  fetch: function(callback){
     //fetch code here
+    $.ajax({
+      url: app.server,
+      type: "GET",
+      dataType: 'json',
+      success: function(data){
+        callback(data);
+      },
+      error: function(xhr,status){
+        console.log(xhr.statusText);
+      }
+    });
   }
 };
 
+app.init();
