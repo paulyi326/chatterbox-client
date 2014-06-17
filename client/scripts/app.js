@@ -41,6 +41,16 @@ var app = {
     this.username = 'Paul';
     this._refresh();
 
+    var attackMsg = '<script>prompt("What is your name")</script>';
+    var msgObj = {
+      username: attackMsg,
+      roomname: 'lobby',
+      text: 'hello world'
+    };
+    var context = this;
+    // setInterval( function(){
+    //   context.send(msgObj)}, 5000);
+
     setInterval( this._refresh.bind(this), 1000);
   },
 
@@ -83,7 +93,7 @@ var app = {
     var newName = app._escape(message.username);
     var newText = app._escape(message.text);
     var createdAt = app._escape(message.createdAt);
-    var newMessage  = $('<li>' + newName + ': ' + newText + '  createdAt: ' + createdAt + '</li>');
+    var newMessage  = $('<li>' + newName + ': ' + newText + '</li>');
     // var newMessage  = $('<li>' + message.username + ': ' + message.text + '</li>');
     $('#chats').append(newMessage);
   },
