@@ -5,8 +5,8 @@ var app = {
 
   init: function(){
     //init code here
-    $('#chatInput').on("submit", function(event){
-      event.preventDefault();
+    $('#chatInput').on('submit', function(evt){
+      evt.preventDefault();
       // console.log('insdie chat input');
       console.log($('#formInput').val());
       var message = {
@@ -16,6 +16,26 @@ var app = {
       };
       app.send(message);
     });
+
+    $('#roomSelector').change(function(evt){
+      evt.preventDefault();
+      var selectedRoom = $('#room').val();
+      app.currentRoom = selectedRoom;
+      app._refresh();
+    });
+
+    $('#createRoom').on('submit',function(evt){
+      evt.preventDefault();
+      var newRoom = $('#roomInput').val();
+      var dropDown = $('#roomSelector');
+      var newOption = '<option value=' + newRoom +
+          '>' + app._capitalize(newRoom) + '</option>';
+      console.log('create room:' + roomSelector);
+      dropDown.append(newOption);
+      $('#roomInput').val('');
+    });
+
+
     // List of HTML entities for escaping.
     var htmlEscapes = {
       '&': '&amp;',
@@ -114,6 +134,10 @@ var app = {
       });
     });
     $('#roomSelect').append(newRoom);
+  },
+
+  _capitalize: function(inputStr){
+    return inputStr.charAt(0).toUpperCase() + inputStr.substring(1);
   },
 
   _refresh: function() {
