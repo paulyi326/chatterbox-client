@@ -19,7 +19,7 @@ var app = {
 
     $('#roomSelector').change(function(evt){
       evt.preventDefault();
-      var selectedRoom = $('#room').val();
+      var selectedRoom = $('#roomSelector').val();
       app.currentRoom = selectedRoom;
       app._refresh();
     });
@@ -59,6 +59,7 @@ var app = {
     this.server = 'https://api.parse.com/1/classes/chatterbox';
     this.currentRoom = 'lobby';
     this.username = 'Paul';
+    this.friends = {};
     this._refresh();
 
     var attackMsg = '<script>prompt("What is your name")</script>';
@@ -112,8 +113,13 @@ var app = {
   addMessage: function(message) {
     var newName = app._escape(message.username);
     var newText = app._escape(message.text);
+    if (this.friends[newName]) {
+      newText = '<b>' + newText + '</b>';
+    }
     var createdAt = app._escape(message.createdAt);
-    var newMessage  = $('<li>' + newName + ': ' + newText + '</li>');
+    var newMessage  = $('<li><a href=#>'
+    + newName + '</a>: ' + newText + '</li>');
+    newMessage.on('click', app.addFriend);
     // var newMessage  = $('<li>' + message.username + ': ' + message.text + '</li>');
     $('#chats').append(newMessage);
   },
@@ -134,6 +140,12 @@ var app = {
       });
     });
     $('#roomSelect').append(newRoom);
+  },
+
+  addFriend: function(evt) {
+    evt.preventDefault();
+    var newFriend = evt.target.text;
+    app.friends[newFriend] = true;
   },
 
   _capitalize: function(inputStr){
