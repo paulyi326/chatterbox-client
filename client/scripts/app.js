@@ -5,9 +5,17 @@ var app = {
 
   init: function(){
     //init code here
+    $('#chatInput').submit(function(evt){
+      var message = {
+        text: $('#chatInput').val(),
+        username: app.username,
+        roomname: app.currentRoom
+      };
+      app.send(message);
+    });
+
     this.server = 'https://api.parse.com/1/classes/chatterbox';
-    this.currentRoom = 1;
-    this.allocatedRooms = 1;
+    this.currentRoom = 'lobby';
     // var gotInput = false;
     // while(!gotInput){
     //   var name = prompt('Enter name');
@@ -15,7 +23,10 @@ var app = {
     //     gotInput = true;
     //   }
     // }
-    // this.username = name;
+    this.username = 'Paul';
+    this._refresh();
+
+    setInterval( this._refresh.bind(this), 5000);
   },
 
   send: function(message){
@@ -53,13 +64,42 @@ var app = {
   },
 
   addMessage: function(message) {
-    var newMessage  = $('<li>' + message.name + ': ' + message.text + '</li>');
+    var newMessage  = $('<li>' + _.escape(message.username) + ': ' + _.escape(message.text) + '</li>');
     $('#chats').append(newMessage);
   },
 
   addRoom: function(roomName) {
     var newRoom = $('<button type="button">' + roomName + '</button>');
+    newRoom.data("roomName", roomName);
+    newRoom.on("click", function(event) {
+      app.currentRoom = roomName;
+      app.clearMessages();
+      app.fetch(function(messages) {
+        messages = _.filter(messages, function(message) {
+          return message.roomname === roomName;
+        });
+        _.each(messages, function(message) {
+          app.addMessage(message);
+        });
+      });
+    });
     $('#roomSelect').append(newRoom);
+  },
+
+  _refresh: function() {
+    app.clearMessages();
+
+    app.fetch(function(messages) {
+      messages = messages.results;
+
+      messages = _.filter(messages,function(message){
+        return message.roomname === app.currentRoom;
+      });
+
+      _.each(messages, function(message) {
+        app.addMessage(message);
+      });
+    });
   }
 };
 
