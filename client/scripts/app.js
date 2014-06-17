@@ -128,6 +128,8 @@ var app = {
     + newName + '</a>: ' + newText + '</li>');
     newMessage.addClass('username');
 
+    $(newMessage).on('click', app.addFriend);
+
     // var newMessage  = $('<li>' + message.username + ': ' + message.text + '</li>');
     $('#chats').append(newMessage);
   },
@@ -169,13 +171,16 @@ var app = {
         return message.roomname === app.currentRoom;
       });
 
-      messages = messages.slice(0, 30);
       app.clearMessages();
 
       _.each(messages, function(message) {
         app.addMessage(message);
       });
-      $('#main').find('.username').click(app.addFriend);
+
+      $('#main').find('.username').on('click', function() {
+        console.log('clicked!');
+      });
+      // $('#main').find('.username').click(app.addFriend);
     });
   }
 };
