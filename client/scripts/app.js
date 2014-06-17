@@ -5,28 +5,43 @@ var app = {
 
   init: function(){
     //init code here
-    $('#chatInput').submit(function(evt){
+    $('#chatInput').on("submit", function(event){
+      event.preventDefault();
+      // console.log('insdie chat input');
+      console.log($('#formInput').val());
       var message = {
-        text: $('#chatInput').val(),
+        text: $('#formInput').val(),
         username: app.username,
         roomname: app.currentRoom
       };
       app.send(message);
     });
+    // List of HTML entities for escaping.
+    var htmlEscapes = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#x27;',
+      '/': '&#x2F;'
+    };
+
+    // Regex containing the keys listed immediately above.
+    var htmlEscaper = /[&<>"'\/]/g;
+
+    // Escape a string for HTML interpolation.
+    this._escape = function(string) {
+      return ('' + string).replace(htmlEscaper, function(match) {
+        return htmlEscapes[match];
+      });
+    };
 
     this.server = 'https://api.parse.com/1/classes/chatterbox';
     this.currentRoom = 'lobby';
-    // var gotInput = false;
-    // while(!gotInput){
-    //   var name = prompt('Enter name');
-    //   if( confirm('Confirm your name is ' + name) ){
-    //     gotInput = true;
-    //   }
-    // }
     this.username = 'Paul';
     this._refresh();
 
-    setInterval( this._refresh.bind(this), 5000);
+    setInterval( this._refresh.bind(this), 1000);
   },
 
   send: function(message){
@@ -35,6 +50,7 @@ var app = {
       url: this.server,
       type: 'POST',
       data: JSON.stringify(message),
+      contentType: 'application/json',
       success: function(data){
         console.log('chatterbox: Message sent');
       },
@@ -47,7 +63,7 @@ var app = {
   fetch: function(callback){
     //fetch code here
     $.ajax({
-      url: this.server,
+      url: this.server + '?order=-createdAt',
       type: "GET",
       dataType: 'json',
       success: function(data){
@@ -64,7 +80,11 @@ var app = {
   },
 
   addMessage: function(message) {
-    var newMessage  = $('<li>' + _.escape(message.username) + ': ' + _.escape(message.text) + '</li>');
+    var newName = app._escape(message.username);
+    var newText = app._escape(message.text);
+    var createdAt = app._escape(message.createdAt);
+    var newMessage  = $('<li>' + newName + ': ' + newText + '  createdAt: ' + createdAt + '</li>');
+    // var newMessage  = $('<li>' + message.username + ': ' + message.text + '</li>');
     $('#chats').append(newMessage);
   },
 
@@ -87,7 +107,6 @@ var app = {
   },
 
   _refresh: function() {
-    app.clearMessages();
 
     app.fetch(function(messages) {
       messages = messages.results;
@@ -95,6 +114,8 @@ var app = {
       messages = _.filter(messages,function(message){
         return message.roomname === app.currentRoom;
       });
+      messages = messages.slice(0, 30);
+      app.clearMessages();
 
       _.each(messages, function(message) {
         app.addMessage(message);
