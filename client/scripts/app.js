@@ -5,17 +5,7 @@ var app = {
 
   init: function(){
     //init code here
-    $('#chatInput').on('submit', function(evt){
-      evt.preventDefault();
-      // console.log('insdie chat input');
-      console.log($('#formInput').val());
-      var message = {
-        text: $('#formInput').val(),
-        username: app.username,
-        roomname: app.currentRoom
-      };
-      app.send(message);
-    });
+    $('#send').on('submit', this.handleSubmit);
 
     $('#roomSelector').change(function(evt){
       evt.preventDefault();
@@ -75,6 +65,19 @@ var app = {
     setInterval( this._refresh.bind(this), 1000);
   },
 
+  handleSubmit: function(evt){
+    evt.preventDefault();
+    // console.log('insdie chat input');
+    console.log($('#send .submit').val());
+    var message = {
+      text: $('#send .submit').val(),
+      username: app.username,
+      roomname: app.currentRoom
+    };
+    app.send(message);
+    $('#send .submit').val('');
+  },
+
   send: function(message){
     //send code here
     $.ajax({
@@ -94,9 +97,13 @@ var app = {
   fetch: function(callback){
     //fetch code here
     $.ajax({
-      url: this.server + '?order=-createdAt',
+      url: this.server,
       type: "GET",
       dataType: 'json',
+      data: {
+        limit: 30,
+        order: '-createdAt'
+      },
       success: function(data){
         callback(data);
       },
@@ -119,7 +126,8 @@ var app = {
     var createdAt = app._escape(message.createdAt);
     var newMessage  = $('<li><a href=#>'
     + newName + '</a>: ' + newText + '</li>');
-    newMessage.on('click', app.addFriend);
+    newMessage.addClass('username');
+
     // var newMessage  = $('<li>' + message.username + ': ' + message.text + '</li>');
     $('#chats').append(newMessage);
   },
@@ -160,12 +168,14 @@ var app = {
       messages = _.filter(messages,function(message){
         return message.roomname === app.currentRoom;
       });
+
       messages = messages.slice(0, 30);
       app.clearMessages();
 
       _.each(messages, function(message) {
         app.addMessage(message);
       });
+      $('#main').find('.username').click(app.addFriend);
     });
   }
 };
