@@ -48,7 +48,7 @@ var app = {
 
     this.server = 'https://api.parse.com/1/classes/chatterbox';
     this.currentRoom = 'lobby';
-    this.username = 'Paul';
+    this.username = 'manu';
     this.friends = {};
     this._refresh();
 
